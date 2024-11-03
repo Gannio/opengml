@@ -24,23 +24,23 @@ jobs:
       run: bash docker/build.sh ubuntu x86_64
 
     # release bundle
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: opengml-ubuntu-x86
         path: artifacts-ubuntu-x86/
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: opengml-ubuntu-x86_64
         path: artifacts-ubuntu-x86_64/
     
     # appimages
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: ogm-ubuntu-x86.AppImage
         path: ogm-ubuntu-x86.AppImage
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: ogm-ubuntu-x86_64.AppImage
         path: ogm-ubuntu-x64.AppImage
@@ -98,7 +98,7 @@ jobs:
     - run: python3 etc/meta/assemble-release.py . opengml-release out
     
     # release
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: opengml-win-x86
         path: opengml-release/
@@ -122,7 +122,7 @@ jobs:
     - run: chmod a+x opengml-release/ogm
     - run: opengml-release/ogm-test
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: opengml-osx-x86_64
         path: opengml-release/
