@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     #env: 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: "build x86"
       run: bash docker/build.sh ubuntu x86
@@ -53,7 +53,7 @@ jobs:
     steps:
 
     # pull
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     # for debugging
     - run: python3 etc/meta/print-env.py
@@ -107,7 +107,7 @@ jobs:
   build-osx:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - run: brew install scons sdl2 sdl2_image sdl2_mixer sdl2_ttf glew glm curl
     - run: scons build-dir="out" -j 8 architecture=x64 --debug=findlibs
     
