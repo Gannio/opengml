@@ -266,6 +266,7 @@ void bytecode_generate_ast(std::ostream& out, const ogm_ast_t& ast, GenerateCont
     try
     {
         auto start_location = out.tellp();
+        
 
         switch (ast.m_subtype)
         {
@@ -273,13 +274,14 @@ void bytecode_generate_ast(std::ostream& out, const ogm_ast_t& ast, GenerateCont
             {
                 ogm_ast_literal_primitive_t* payload;
                 ogm_ast_tree_get_payload_literal_primitive(&ast, &payload);
+                
                 switch (payload->m_type)
                 {
                     case ogm_ast_literal_t_number:
                     {
                         char* s = payload->m_value;
                         if (s[0] == '$' || (s[0] == '0' && s[1] == 'x'))
-                        {
+                        {//Parse out a hex string.
                             // hex string
                             uint64_t v = 0;
                             for (size_t i = 1 + (s[0] == '0'); s[i] != 0; i++)
@@ -306,7 +308,7 @@ void bytecode_generate_ast(std::ostream& out, const ogm_ast_t& ast, GenerateCont
                                 write(out, vs);
                             }
                         }
-                        else
+                        else//Parse out a number string.
                         {
                             // decimal
                             if (char* p = strchr(s, '.'))

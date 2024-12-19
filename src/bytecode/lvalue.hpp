@@ -356,11 +356,11 @@ inline LValue bytecode_generate_get_lvalue(std::ostream& out, const ogm_ast_t& a
         bool read_only = false;
         bool no_copy = false;
         size_t nest_count = 0;
-        
         switch (ast.m_subtype)
         {
         case ogm_ast_st_exp_identifier:
             {
+                
                 char* var_name = (char*) ast.m_payload;
                 BuiltInVariableDefinition def;
                 asset_index_t asset_index;

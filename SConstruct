@@ -154,7 +154,7 @@ class _:
   pass
 opts = _()
 opts.architecture = d(args, "architecture", d(args, "arch", default_target_arch or d(os.environ, "TARGET_ARCH", d(os.environ, "VSCMD_ARG_TGT_ARCH", platform.machine())))).lower()
-opts.release = d(args, "release", False)
+opts.release = d(args, "release", True)
 opts.appimage = d(args, "appimage", False)
 opts.zugbruecke = d(args, "zugbruecke", os_is_linux)
 opts.install = d(args, "install", False) # set to either a bool/int ('1') or a directory
@@ -176,15 +176,15 @@ opts.deb = d(args, "deb", False)
 if opts.deb and opts.install:
   error("deb and install are mutually exclusive")
 
-opts.array_2d = d(args, "array2d", False)
+opts.array_2d = d(args, "array2d", True)#False)
 # disable parallel build support in ogm by default if using mingw32 on windows, as for some reason it doesn't work.
 opts.parallel_build = d(args, "parallel-compile", msvc or not os_is_windows)
 opts.headless = d(args, "headless", False)
 opts.sound = d(args, "sound", True)
-opts.structs = d(args, "structs", True)
-opts.functions = d(args, "functions", True)
-opts.layers = d(args, "layers", False)
-opts.cameras = d(args, "cameras", True)
+opts.structs = d(args, "structs", False)#True)
+opts.functions = d(args, "functions", False)#True)
+opts.layers = d(args, "layers", False)#False)
+opts.cameras = d(args, "cameras", False)#True)
 opts.networking = d(args, "sockets", True) # networking enabled
 opts.filesystem = d(args, "filesystem", True) # std::filesystem enabled
 opts.linktest = d(args, "linktest", d(args, "link-test", False)) # if true, build only the linker test executable.
@@ -192,6 +192,7 @@ opts.linktest = d(args, "linktest", d(args, "link-test", False)) # if true, buil
 define_if(opts.layers, "OGM_LAYERS")
 define_if(opts.cameras, "OGM_CAMERAS")
 define_if(opts.array_2d, "OGM_2D_ARRAY")
+define_if(opts.array_2d, "OGM_2DARRAY")#Bugfix.
 define_if(opts.structs, "OGM_STRUCT_SUPPORT")
 define_if(opts.functions, "OGM_FUNCTION_SUPPORT")
 define_if(opts.filesystem, "CPP_FILESYSTEM_ENABLED")
@@ -257,14 +258,19 @@ if opts.architecture in ["x86", "i386"]:
   vcpkg_arch = "x86"
   if not msvc:
     env.Append(CCFLAGS="-m32", LINKFLAGS="-m32")
+    warn("Not MSVC!");
+  else:
+    warn("MSVC!");
   define("OGM_X32")
+  warn("32-bit Mode!");
 elif opts.architecture in ["x86_64", "x64", "i686", "amd64"]:
   deb_architecture = "amd64"
   architecture = "x86_64"
   vcpkg_arch = "x64"
-  if not msvc:
+  if not msvc:#CHECK THIS
     env.Append(CCFLAGS="-m64", LINKFLAGS="-m64")
   define("OGM_X64")
+  warn("64-bit Mode!");
 else:
   error("architecture not supported: " + str(opts.architecture))
   error("please use: scons arch=<ARCHITECTURE>")
@@ -703,11 +709,14 @@ conf.Finish()
 dependency_skip_list = [
     f"include/ogm/common/error_codes.hpp"
 ]
-
 def decide_if_changed(dependency, target, prev_ni, repo_node=None):
+    #print("DEP");
+    #print(dependency);
+    #print(os.path.abspath(str(dependency)));
+    #print(os.path.abspath(str(prev_ni)));
     if not prev_ni:
         return True
-    if dependency.get_timestamp() != prev_ni.timestamp:
+    if True: #os.path.getmtime(os.path.abspath(str(dependency))) != os.path.getmtime(os.path.abspath(str(prev_ni))):#dependency.get_timestamp() != prev_ni.timestamp:
         dep = str(dependency)
         if dep in dependency_skip_list:
             return False
@@ -718,17 +727,27 @@ env.Decider(decide_if_changed)
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-
+class File:
+    # Ensure `__str__` or `__repr__` is defined
+    def __str__(self):
+        return self.filename  # Assuming `filename` is an attribute
 # TODO: cpack
 
 # -- compile ----------------------------------------------------------------------------------------------------------
-
+import SCons.Node.FS
 # returns source files in directories given by args (and recursively all subdirectories thereof)
 # e.g. sources("src", "ast") -> all source files
 def sources(*args):
-  # remove duplicates and return 
-  # sorting is important so that scons doesn't detect the dependency order has changed.
-  return sorted(list(set(source_files[os.path.join(*args)])))
+    items = set(source_files[os.path.join(*args)])
+    
+    # Separate items by checking their type using string conversion or attribute inspection
+    str_items = [item for item in items if isinstance(item, str)]
+    file_items = [item for item in items if hasattr(item, 'path')]  # 'path' is a common attribute in file-like objects
+    
+    # Combine sorted lists: sort File objects by their string representation
+    return sorted(str_items) + sorted(file_items, key=lambda f: str(f))
+
+
 
 def outname(name):
   return os.path.join(build_dir, name)
@@ -764,8 +783,8 @@ ogm_sys = env.StaticLibrary(
 # ogm-ast
 ogm_ast = env.StaticLibrary(
   outname("ogm-ast"),
-  sources("src", "ast") +
-  sources("external", "utf8"),
+  sources("src", "ast")
+  + sources("external", "utf8"),
 )
 
 # ogm-bytecode
@@ -793,8 +812,8 @@ ogm_asset = env.StaticLibrary(
 ogm_project = env.StaticLibrary(
   outname("ogm-project"),
   sources("src", "project") +
-  sources("simpleini", "ConvertUTF.c") +
-  sources("external", "pugixml"),
+  sources("simpleini", "ConvertUTF.c")
+  # + sources("external", "pugixml"),
 )
 
 # ogm-interpreter

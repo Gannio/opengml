@@ -25,7 +25,7 @@
 #define snprintf _snprintf
 #else
 #ifndef __FreeBSD__
-#include <alloca.h>
+//#include <alloca.h>
 #endif /* __FreeBSD__ */
 #endif
 #include <assert.h>
@@ -241,7 +241,13 @@ size_t u8_strlen(const char *s)
     return count;
 }
 
-int wcwidth(wchar_t c);
+
+int wcwidth(wchar_t c) {
+    if (c == 0) return 0;               // Null character
+    else if (c < 0x1100) return 1;       // Basic Latin characters, etc.
+    else return 2;                       // Other characters (e.g., CJK characters)
+}
+
 
 size_t u8_strwidth(const char *s)
 {
@@ -586,14 +592,14 @@ int u8_is_locale_utf8(const char *locale)
     return 0;
 }
 
-size_t u8_vprintf(const char *fmt, va_list ap)
+size_t u8_vprintfFixed(const char *fmt, va_list ap)
 {
     int cnt, sz=0, nc, needfree=0;
     char *buf;
     uint32_t *wcs;
 
     sz = 512;
-    buf = (char*)alloca(sz);
+    buf = (char*)malloc(sz);
     cnt = vsnprintf(buf, sz, fmt, ap);
     if (cnt < 0)
         return 0;
@@ -602,7 +608,7 @@ size_t u8_vprintf(const char *fmt, va_list ap)
         needfree = 1;
         vsnprintf(buf, cnt+1, fmt, ap);
     }
-    wcs = (uint32_t*)alloca((cnt+1) * sizeof(uint32_t));
+    wcs = (uint32_t*)malloc((cnt+1) * sizeof(uint32_t));
     nc = u8_toucs(wcs, (size_t)cnt+1, buf, cnt);
     wcs[nc] = 0;
     printf("%ls", (wchar_t*)wcs);
@@ -617,7 +623,7 @@ size_t u8_printf(const char *fmt, ...)
 
     va_start(args, fmt);
 
-    cnt = u8_vprintf(fmt, args);
+    cnt = u8_vprintfFixed(fmt, args);
 
     va_end(args);
     return cnt;

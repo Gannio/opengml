@@ -42,6 +42,8 @@ struct ParseResult
     std::string m_what_error;
     ReflectionAccumulator m_reflection_accumulator;
     std::vector<DisassembledBytecodeInstruction> m_instructions;
+	// Explicitly defined destructor to ensure `ReflectionAccumulator`'s destructor is called
+    ~ParseResult() = default;
 };
 
 std::vector<ParseResult*> results;
@@ -182,7 +184,7 @@ external ty_string gig_instruction_opcode(ty_real rindex, ty_real rinstruction)
 {
     size_t index = rindex;
     size_t instruction = rinstruction;
-    return get_opcode_string(results[index]->m_instructions[instruction].m_op);
+    return ty_string(get_opcode_string(results[index]->m_instructions[instruction].m_op));//return get_opcode_string(results[index]->m_instructions[instruction].m_op);
 }
 
 external ty_string gig_instruction_immediate(ty_real rindex, ty_real rinstruction)
@@ -212,6 +214,13 @@ external ty_real gig_free(ty_real rindex)
 {
     size_t index = rindex;
     delete(results[index]);
+	results.erase(results.begin() + index);
+	/*if (results.begin() + index != results.end() - 1)
+	{
+		return -77;
+		//pr.m_error = true;
+        //pr.m_what_error = "STACK CORRUPTION";
+	}*/
     return 0;
 }
 

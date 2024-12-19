@@ -57,3 +57,6 @@ ogm-*_arm64*
 
 # license file (created by SCons)
 src/common/license.inc
+
+# gig file
+src/gig/*

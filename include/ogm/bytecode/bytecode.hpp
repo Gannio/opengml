@@ -642,7 +642,7 @@ public:
     // member functions
     ReflectionAccumulator();
     ~ReflectionAccumulator();
-
+	
     inline bool has_bare_global(const std::string& s) const
     {
         READ_LOCK(m_mutex_bare_globals)
