@@ -230,6 +230,11 @@ external ty_string gig_hello()
     return hello;
 }
 
+external ty_real gig_version()
+{
+    return 101;
+}
+
 external ty_string gig_license()
 {
     #ifdef OGM_LICENSE_AVAILABLE

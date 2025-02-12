@@ -291,10 +291,14 @@ void bytecode_generate_ast(std::ostream& out, const ogm_ast_t& ast, GenerateCont
                                 {
                                     v += s[i] - '0';
                                 }
-                                else
-                                {
-                                    v += 10 + s[i] - 'a';
-                                }
+                                else if (s[i] >= 'a' && s[i] <= 'f')
+								{
+									v += 10 + s[i] - 'a';
+								}
+								else if (s[i] >= 'A' && s[i] <= 'F')
+								{
+									v += 10 + s[i] - 'A';
+								}
                             }
                             if (v >= 1 << 31)
                             {
