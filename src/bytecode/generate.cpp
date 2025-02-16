@@ -343,8 +343,8 @@ void bytecode_generate_ast(std::ostream& out, const ogm_ast_t& ast, GenerateCont
                                     v += s[i] - '0';
                                 }
 
-                                if (v >= 1 << 31)
-                                {
+                                if (v < (1ULL << 53)) // 53-bit limit of double precision integers
+								{
                                     write_op(out, ldi_u64);
                                     write(out, v);
                                 }
